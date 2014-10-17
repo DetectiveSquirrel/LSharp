@@ -103,16 +103,13 @@ namespace YorickMILFDigger
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "Auto E enemy if HP <").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHP", "R in combo if my %HP <= ").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHPE", "R in combo if Enemy %HP <= ").SetValue(new Slider(50, 0, 100)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("eExploit", "Use E exploit").SetValue(new KeyBind("P".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Misc").AddSubMenu(new Menu("Dont use R on", "DontUlt"));
             
             foreach (var myTeam in ObjectManager.Get<Obj_AI_Hero>().Where(myTeam => myTeam.Team == Player.Team && myTeam.BaseSkinName != Player.BaseSkinName))
                 menu.SubMenu("Misc")
                     .SubMenu("DontUlt")
                     .AddItem(new MenuItem("DontUlt" + myTeam.BaseSkinName, myTeam.BaseSkinName).SetValue(false));
-
-            //Exploit Test
-            menu.AddSubMenu(new Menu("Exploits", "InDev Exploits"));
-            menu.SubMenu("Exploits").AddItem(new MenuItem("eExploit", "Use E exploit").SetValue(new KeyBind("P".ToCharArray()[0], KeyBindType.Press))); //P like push
             
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -171,7 +168,6 @@ namespace YorickMILFDigger
         }
         
         private static void ExploitE(){
-            if(E.IsReady())
             E.Cast(Player.ServerPosition, true);//must be true so it casts E. Might not work.
         }
         
@@ -218,12 +214,12 @@ namespace YorickMILFDigger
 
             if (enemyHP <= HPtoUltEnemy)
             {
-                if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) <= R.Range && useR && R.IsReady())
+                if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) <= R.Range && useR)
                 {
                     R.Cast(target, packets());
                     return;
                 }
-                else if (enemy != null && Player.Distance(enemy) < R.Range && R.IsReady())
+                else if (enemy != null && Player.Distance(enemy) < R.Range)
                 {
                     R.Cast(Player, packets());
                 }
@@ -232,7 +228,7 @@ namespace YorickMILFDigger
 
             if (playerHP <= HPtoUlt)
             {
-                if (enemy != null && R.IsReady())
+                if (enemy != null)
                 {
                     R.Cast(Player, packets());
                     return;
@@ -271,7 +267,7 @@ namespace YorickMILFDigger
             var playerHP = (Player.Health / Player.MaxHealth) * 100;
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
 
-            if (playerHP < HPtoE && Target != null && Player.Distance(Target) <= E.Range && E.IsReady())
+            if (playerHP < HPtoE && Target != null && Player.Distance(Target) <= E.Range)
                 E.Cast(Target);
         }
 
@@ -292,7 +288,7 @@ namespace YorickMILFDigger
                 hasGhost = false;
             }
 
-            Orbwalker.SetAttack(true);
+            Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -374,7 +370,7 @@ namespace YorickMILFDigger
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High && W.IsReady())
+            if (Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
                 W.CastIfWillHit(wTarget, minHit, packets());
             }
